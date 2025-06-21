@@ -25,7 +25,8 @@ def init_db():
             need_init = True
 
     if need_init:
-        with open("schema.sql", "r", encoding="utf-8") as f:
+        # Use the correct schema file name here
+        with open("schema_memory.sql", "r", encoding="utf-8") as f:
             schema = f.read()
         conn = sqlite3.connect(DATABASE)
         conn.executescript(schema)
