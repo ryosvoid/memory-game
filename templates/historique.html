@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historique des parties</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>Historique de mes parties</h1>
+<table class="history-table">
+  <tr>
+    <th>Date</th>
+    <th>Thème</th>
+    <th>Difficulté</th>
+    <th>Mode</th>
+    <th>Durée (s)</th>
+    <th>Gagnant</th>
+  </tr>
+  {% if parties %}
+    {% for p in parties %}
+    <tr>
+      <td>{{ p['date_partie'] }}</td>
+      <td>{{ p['theme'] }}</td>
+      <td>{{ p['difficulte'] }}</td>
+      <td>{% if p['mode_multijoueur'] %}Multi{% else %}Solo{% endif %}</td>
+      <td>{{ p['duree_seconds'] or "-" }}</td>
+      <td>{{ p['gagnant'] or "-" }}</td>
+    </tr>
+    {% endfor %}
+  {% else %}
+    <tr>
+      <td colspan="6">Aucune partie trouvée.</td>
+    </tr>
+  {% endif %}
+</table>
+<a href="{{ url_for('theme_select') }}" class="pill-btn">Retour</a>
+</body>
+</html>

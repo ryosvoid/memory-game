@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Correction détaillée – Série 1 Espaces vectoriels (Image 3)</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f9f9f9; margin: 2em; }
+        h1, h2, h3 { color: #2a3b6b; }
+        .mat { font-family: 'Consolas', monospace; background: #eef; padding: 2px 6px; border-radius: 3px; }
+        pre { background: #f4f4f4; padding: 7px 12px; border-radius: 5px; }
+        .sol { margin-bottom: 1.7em; }
+    </style>
+</head>
+<body>
+<h1>Correction détaillée – Série 1 d’Exercices sur les espaces vectoriels</h1>
+
+<h2>Coordonnées, matrices associées et base</h2>
+<div class="sol">
+    <b>Coordonnées dans la base B et matrice associée :</b><br>
+    Les coordonnées des vecteurs dans la base B sont :
+    <pre>
+[v₁]<sub>B</sub> = (2, -1, 3)
+[v₂]<sub>B</sub> = (0, 4, -2)
+[v₃]<sub>B</sub> = (1, 1, 1)
+    </pre>
+    La matrice associée à S = (v₁, v₂, v₃) est :
+    <pre>
+A<sub>S</sub> = | 2  0  1 |
+               | -1 4  1 |
+               | 3 -2  1 |
+    </pre>
+</div>
+
+<div class="sol">
+    <b>Rang de la matrice et justification :</b><br>
+    Le rang de A<sub>S</sub> vaut 3, donc les 3 vecteurs sont linéairement indépendants.<br>
+    <b>Justification :</b> On voit par exemple que le déterminant de la matrice 3x3 est non nul, ou on le réduit par Gauss à une forme échelonnée, ou on constate que chaque vecteur apporte une direction nouvelle.<br>
+    <b>Conclusion : S = (v₁, v₂, v₃) est une base de ℝ³.</b>
+</div>
+
+<h2>Base du sous-espace engendré par F</h2>
+<div class="sol">
+    Les vecteurs v₁ et v₃ sont non colinéaires (car aucun n’est un multiple de l’autre), ils forment donc une base du plan qu’ils engendrent.<br>
+    Dès que deux vecteurs ne sont pas colinéaires, ils sont indépendants.<br>
+    <b>Conclusion : (v₁, v₃) est une base du sous-espace engendré par F.</b>
+</div>
+
+<h2>Vérification par la méthode de la forme échelonnée (réduction par colonnes)</h2>
+<div class="sol">
+    On forme la matrice A ∈ M<sub>3,4</sub>(ℝ) dont les colonnes sont v₁, v₂, v₃, v₄ :
+    <pre>
+A = | 1 2 0 1 |
+    | 2 4 1 3 |
+    | 0 1 1 4 |
+    </pre>
+    On applique la méthode de Gauss (réduction par colonnes) pour vérifier la liberté des colonnes :<br>
+    On voit rapidement que v₂ = 2v₁, donc la colonne 2 est combinaison des autres.<br>
+    Les autres colonnes (v₁, v₃, v₄) sont-elles indépendantes ?<br>
+    On remarque que v₄ = v₁ + v₃.<br>
+    Donc, l’espace engendré est de dimension 2, base : (v₁, v₃).
+</div>
+
+<h2>Exercice 3</h2>
+<div class="sol">
+    <b>Vérification par observation de combinaisons linéaires :</b><br>
+    On a :
+    <pre>
+v₁ = (1,2,3)
+v₂ = (2,4,6)
+v₃ = (0,1,1)
+v₄ = (1,3,4)
+    </pre>
+    On remarque :
+    <ul>
+        <li>v₂ = 2 v₁</li>
+        <li>v₄ = v₁ + v₃</li>
+    </ul>
+    Donc v₂ et v₄ sont des combinaisons linéaires de v₁ et v₃.<br>
+    <b>Conclusion : (v₁, v₃) est une base de l’espace engendré par F.</b>
+</div>
+
+<h2>Exercice 4</h2>
+<div class="sol">
+    <b>Famille F = {v₁, v₂} avec v₁ = (1,0,1), v₂ = (0,1,1)</b><br>
+    <b>Montrons que F est libre :</b><br>
+    Supposons λ v₁ + μ v₂ = (0,0,0), soit :
+    <pre>
+λ(1,0,1) + μ(0,1,1) = (0,0,0)
+</pre>
+    <ul>
+        <li>Première coordonnée : λ = 0</li>
+        <li>Deuxième : μ = 0</li>
+        <li>Troisième : λ + μ = 0 ⇒ 0 + 0 = 0</li>
+    </ul>
+    Seule solution : λ = μ = 0.<br>
+    <b>Conclusion : (v₁, v₂) est libre.</b>
+</div>
+</body>
+</html>

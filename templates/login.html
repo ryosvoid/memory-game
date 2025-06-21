@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: url("https://i.pinimg.com/originals/3a/6d/b8/3a6db835c78c33a3d4dad3dc7f8d8569.gif") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glass {
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.18);
+            padding: 55px 30px;
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .form-box {
+            background: rgba(255,255,255,0.88);
+            border-radius: 18px;
+            padding: 35px 25px;
+            width: 310px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.14);
+            transition: transform 0.2s;
+        }
+        .form-box:hover { transform: scale(1.025); }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 22px;
+            color: #D72660;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 13px;
+            margin: 12px 0 22px;
+            border: none;
+            border-radius: 12px;
+            background: #f6f8fa;
+            font-size: 1.08em;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #ffb8b8, #ff61a6 70%);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.04em;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #ff61a6 30%, #ffb8b8 100%);
+            transform: scale(1.03);
+        }
+
+        .error {
+            color: #d72660;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .success {
+            color: #37b24d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 700px) {
+            .glass { flex-direction: column; align-items: center; }
+            .form-box { width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glass">
+        <!-- Login Form -->
+        <form class="form-box" method="POST" action="{{ url_for('login') }}">
+            <h2>Login</h2>
+            {% if error and login %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+            <input type="hidden" name="action" value="Login">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <!-- Register Form -->
+        <form class="form-box" method="POST" action="{{ url_for('login') }}">
+            <h2>Register</h2>
+            {% if error and register %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+            <input type="hidden" name="action" value="Register">
+            <input type="text" name="username" placeholder="New Username" required>
+            <input type="password" name="password" placeholder="New Password" required>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>

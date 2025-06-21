@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Choose Theme</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Cute font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400|Baloo+2:700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url("https://i.pinimg.com/originals/3a/6d/b8/3a6db835c78c33a3d4dad3dc7f8d8569.gif") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .glass {
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.18);
+            padding: 45px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 350px;
+            width: 90vw;
+            max-width: 700px;
+        }
+        h2 {
+            text-align: center;
+            color: #D72660;
+            margin-bottom: 32px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .themes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .theme-card-form {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        .theme-card-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.82);
+            border-radius: 16px;
+            border: 2px solid #ffb8e7;
+            box-shadow: 0 2px 8px #ffd6ec;
+            padding: 16px 20px 10px 20px;
+            cursor: pointer;
+            transition: transform 0.17s, box-shadow 0.18s;
+            min-width: 120px;
+            min-height: 170px;
+        }
+        .theme-card-btn:hover {
+            transform: scale(1.045);
+            box-shadow: 0 4px 18px #ffb8e7;
+        }
+        .theme-card-btn img {
+            width: 95px;
+            height: 95px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 2.5px solid #ffb8e7;
+            background: #fff;
+        }
+        .theme-card-btn span {
+            font-family: 'Baloo 2', cursive;
+            color: #fd4da8;
+            font-size: 1.10em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .theme-form-controls {
+            margin-top: 12px;
+            display: flex;
+            gap: 9px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .theme-form-controls select, .theme-form-controls button {
+            padding: 11px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.08em;
+        }
+        .theme-form-controls button {
+            background: linear-gradient(90deg, #ffb8b8, #ff61a6 70%);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        .theme-form-controls button:hover {
+            background: linear-gradient(90deg, #ff61a6 30%, #ffb8b8 100%);
+            transform: scale(1.03);
+        }
+        .actions {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 22px;
+        }
+        .actions a {
+            background: linear-gradient(90deg, #ffe0f6, #ffc1e3 80%);
+            color: #fd5da8;
+            border-radius: 20px;
+            padding: 10px 25px;
+            text-decoration: none;
+            font-size: 1.15em;
+            font-weight: 600;
+            text-align: center;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .actions a:hover { background: linear-gradient(90deg, #ffc1e3 30%, #ffe0f6 100%); transform: scale(1.03);}
+        @media (max-width: 800px) {
+            .glass { min-width: 96vw; width: 98vw; padding: 12vw 2vw; }
+            .themes-grid { gap: 13px; }
+            .theme-card-btn { min-width: 94px; min-height: 128px; padding: 10px 7px 7px 7px;}
+            .theme-card-btn img { width: 67px; height: 67px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glass">
+        <h2>Choisissez un thème</h2>
+        <div class="themes-grid">
+            {% for theme in themes %}
+            <form class="theme-card-form" method="get" action="{{ url_for('game', theme=theme) }}">
+                <button class="theme-card-btn" type="submit">
+                    <img src="{{ url_for('static', filename='images/' + theme.lower() + '/' + theme.lower() + '1.jpg') }}" alt="{{ theme }}">
+                    <span>{{ theme }}</span>
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+    
+            <select name="difficulty" id="diff-select" required>
+                {% for code, label in DIFFICULTY_LABELS.items() %}
+                    <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" onclick="startGame()">Jouer</button>
+        </form>
+        <div class="actions">
+            <a href="{{ url_for('logout') }}">Déconnexion</a>
+        </div>
+    </div>
+    <script>
+        function startGame() {
+            var theme = document.getElementById('theme-select').value;
+            var diff = document.getElementById('diff-select').value;
+            window.location.href = "{{ url_for('game', theme='') }}" + theme + "?difficulty=" + diff;
+        }
+    </script>
+</body>
+</html>

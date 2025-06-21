@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ theme }} Memory Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400|Baloo+2:700&display=swap" rel="stylesheet">
+</head>
+<body class="game-page">
+    <div class="game-header">
+        <div class="pretty-title">
+            <span class="cute-heart">💖</span>
+            <span class="game-main-title">{{ theme }} Memory Game</span>
+            <span class="game-level">{{ difficulty_label }}</span>
+            <span class="cute-heart">💖</span>
+        </div>
+        <div class="score-timer-wrapper">
+            {% if is_multiplayer %}
+                <div class="score-pill player1 {% if current_player == 0 %}active{% endif %}">
+                    <span class="score-label">Joueur 1</span>
+                    <span id="score1">{{ scores[0] }}</span>
+                </div>
+                <div class="score-pill player2 {% if current_player == 1 %}active{% endif %}">
+                    <span class="score-label">Joueur 2</span>
+                    <span id="score2">{{ scores[1] }}</span>
+                </div>
+                <div class="timer-pill">
+                    <span class="timer-label">Tour</span>
+                    <span id="player-turn">{% if current_player == 0 %}🟣 Joueur 1{% else %}🟢 Joueur 2{% endif %}</span>
+                </div>
+            {% else %}
+                <div class="score-pill">
+                    <span class="score-label">Score</span>
+                    <span id="score">{{ score }}</span>
+                </div>
+                <div class="timer-pill">
+                    <span class="timer-label">Temps</span>
+                    <span id="timer"><span id="time-left">{{ time_limit }}</span>s</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="game-options-row">
+            <button id="multiplayer-btn" type="button" aria-pressed="{{ 'true' if is_multiplayer else 'false' }}" class="multiplayer-toggle {% if is_multiplayer %}active{% endif %}">
+                <span class="icon">👥</span>
+                <span class="label">{% if is_multiplayer %}Multijoueur activé{% else %}Activer Multijoueur{% endif %}</span>
+                <span class="switch"><span class="dot"></span></span>
+            </button>
+            <div class="difficulty-pill">
+                <span class="difficulty-icon" title="Difficulté">🎚️</span>
+                <select id="difficulty" class="difficulty-dropdown">
+                    {% for key, label in difficulty_labels.items() %}
+                        <option value="{{key}}" {% if difficulty == key %}selected{% endif %}>{{label}} ({{key}})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% if is_multiplayer %}
+            <div class="multiplayer-banner">
+                <span class="icon">👥</span> Mode 2 Joueurs activé !
+            </div>
+        {% endif %}
+        <div style="margin-top:18px; text-align:center;">
+            <a href="{{ url_for('historique') }}" class="pill-btn">🗂️ Historique</a>
+        </div>
+    </div>
+    <div class="game-board">
+        <div class="grid" id="game-grid"
+             style="grid-template-columns: repeat({{ columns }}, minmax(54px, 1fr)); grid-template-rows: repeat({{ rows }}, minmax(54px, 1fr));">
+            {% for image in card_images %}
+            <div class="card" onclick="flipCard(this)">
+                <div class="inner">
+                    <div class="front">
+                        <img src="https://i.pinimg.com/736x/27/13/23/2713231a9c86c11db8ce242fff18da6d.jpg" />
+                    </div>
+                    <div class="back">
+                        <img src="{{ url_for('static', filename='images/' + theme.lower() + '/' + image) }}" />
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="controls controls-pills">
+        <a href="{{ url_for('restart_level', theme=theme, difficulty=difficulty, multiplayer='1' if is_multiplayer else None) }}" class="pill-btn">🔄 Restart</a>
+        <a href="{{ url_for('reset') }}" class="pill-btn">🏠 Back to Themes</a>
+    </div>
+
+    <audio id="match-sound" src="{{ url_for('static', filename='sounds/match.mp3') }}"></audio>
+    <audio id="fail-sound" src="{{ url_for('static', filename='sounds/fail.mp3') }}"></audio>
+    <canvas id="confetti-canvas" style="position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:99;"></canvas>
+
+    <!-- MODAL OVERLAY: ONLY shows on win/lose! -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;">
+        <div class="modal-content" id="modal-content">
+            <div id="modal-win" class="modal-win" style="display:none;">
+                <div class="win-emoji">🎉💖🎉</div>
+                <div class="win-message">Bravo !</div>
+                <a id="next-btn" href="{{ url_for('next_level', theme=theme, difficulty=difficulty, multiplayer='1' if is_multiplayer else None) }}" class="next-pill-btn">
+                    Niveau Suivant ({{ difficulty_label }}) →
+                </a>
+            </div>
+            <div id="modal-lose" class="pill-buttons-row" style="display:none;">
+                <div class="lose-message">Oups ! Tu as perdu 20 points.</div>
+                <a id="try-again-btn" href="{{ url_for('lose_level', theme=theme, difficulty=difficulty, multiplayer='1' if is_multiplayer else None) }}" class="pill-btn">🔄 Réessayer (-20)</a>
+                <a href="{{ url_for('restart_level', theme=theme, difficulty=difficulty, multiplayer='1' if is_multiplayer else None) }}" class="pill-btn">🔄 Restart</a>
+                <a href="{{ url_for('reset') }}" class="pill-btn">🏠 Back to Themes</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Multijoueur toggle and UI update
+        const multiplayerBtn = document.getElementById('multiplayer-btn');
+        let isMultiplayer = {{ 'true' if is_multiplayer else 'false' }};
+        function updateMultiplayerUI() {
+            if(isMultiplayer){
+                multiplayerBtn.classList.add('active');
+                multiplayerBtn.setAttribute("aria-pressed", "true");
+                multiplayerBtn.querySelector('.label').textContent = "Multijoueur activé";
+            } else {
+                multiplayerBtn.classList.remove('active');
+                multiplayerBtn.setAttribute("aria-pressed", "false");
+                multiplayerBtn.querySelector('.label').textContent = "Activer Multijoueur";
+            }
+        }
+        multiplayerBtn.addEventListener('click', function() {
+            isMultiplayer = !isMultiplayer;
+            updateMultiplayerUI();
+            let params = new URLSearchParams(window.location.search);
+            params.set('multiplayer', isMultiplayer ? '1' : '0');
+            window.location.search = params.toString();
+        });
+        updateMultiplayerUI();
+
+        document.getElementById('difficulty').addEventListener('change', function(e){
+            let diff = e.target.value;
+            let params = new URLSearchParams(window.location.search);
+            params.set('difficulty', diff);
+            window.location.search = params.toString();
+        });
+
+        // Game logic for multiplayer and single player
+        let firstCard = null;
+        let lockBoard = false;
+        let matchedPairs = 0;
+        const totalPairs = {{ pairs }};
+        let timer = {{ time_limit }};
+        let timerInterval = null;
+        let turnPlayer = {% if is_multiplayer %}{{ current_player }}{% else %}0{% endif %};
+        let playerScores = {% if is_multiplayer %}[{{ scores[0] }}, {{ scores[1] }}]{% else %}null{% endif %};
+        let movesCount = 0; // Tracks total moves for more accuracy
+
+        function flipCard(card) {
+            if (lockBoard || card.classList.contains('flipped')) return;
+            card.classList.add('flipped');
+            if (!firstCard) {
+                firstCard = card;
+                return;
+            }
+            const img1 = firstCard.querySelector('.back img').src;
+            const img2 = card.querySelector('.back img').src;
+            movesCount++; // Increment on each pair attempt
+            if (img1 === img2) {
+                document.getElementById('match-sound').play();
+                matchedPairs++;
+                // If multiplayer, add score to current player
+                if (playerScores) {
+                    playerScores[turnPlayer]++;
+                    document.getElementById('score'+(turnPlayer+1)).textContent = playerScores[turnPlayer];
+                }
+                firstCard = null;
+                if (matchedPairs === totalPairs) winRound();
+            } else {
+                document.getElementById('fail-sound').play();
+                lockBoard = true;
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    card.classList.remove('flipped');
+                    firstCard = null;
+                    lockBoard = false;
+                    // If multiplayer, change player turn on fail
+                    if(playerScores) {
+                        turnPlayer = turnPlayer === 0 ? 1 : 0;
+                        let pt = document.getElementById('player-turn');
+                        if(pt) pt.textContent = turnPlayer === 0 ? '🟣 Joueur 1' : '🟢 Joueur 2';
+                        document.querySelector('.score-pill.player1').classList.toggle('active', turnPlayer === 0);
+                        document.querySelector('.score-pill.player2').classList.toggle('active', turnPlayer === 1);
+                    }
+                }, 800);
+            }
+        }
+
+        function winRound() {
+            stopTimer();
+            launchConfetti();
+            // Enregistrement de la partie (historique)
+            let duration = {{ time_limit }} - timer;
+            let moves = movesCount;
+            let score = {% if is_multiplayer %}0{% else %}parseInt(document.getElementById('score').textContent){% endif %};
+
+            {% if not is_multiplayer %}
+            // Debug: show values sent to backend
+            console.log({
+                theme: "{{ theme }}",
+                difficulty: "{{ difficulty }}",
+                duration: duration,
+                moves: moves,
+                score: score
+            });
+
+            fetch("{{ url_for('api_finish') }}", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    theme: "{{ theme }}",
+                    difficulty: "{{ difficulty }}",
+                    duration: duration,
+                    moves: moves,
+                    score: score
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Game history saved!");
+                } else {
+                    console.error("Failed to save game history:", data.error);
+                    alert("Historique non sauvegardé : " + data.error);
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                alert("Erreur lors de la sauvegarde de l'historique !");
+            });
+            {% endif %}
+            showModal(true);
+        }
+        function failRound() {
+            stopTimer();
+            showModal(false);
+        }
+        function showModal(win) {
+            document.getElementById('modal-overlay').style.display = "flex";
+            document.getElementById('modal-win').style.display = win ? "flex" : "none";
+            document.getElementById('modal-lose').style.display = win ? "none" : "flex";
+        }
+        function startTimer() {
+            let t = document.getElementById('time-left');
+            if(!t) return;
+            t.textContent = timer;
+            timerInterval = setInterval(() => {
+                timer--;
+                t.textContent = timer;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    failRound();
+                }
+            }, 1000);
+        }
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+        // Confetti stays the same as before
+        let confettiParticles = [];
+        const confettiColors = ["#ff69b4", "#ffb7d5", "#ffd6fa", "#fff", "#ffe5ec", "#ffb6b9"];
+        function launchConfetti() {
+            resizeConfettiCanvas();
+            const canvas = document.getElementById('confetti-canvas');
+            confettiParticles = [];
+            for (let i = 0; i < 150; i++) {
+                confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 4,
+                    d: Math.random() * 100 + 100,
+                    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+                    tilt: Math.random() * 10 - 10,
+                    tiltAngle: 0,
+                    tiltAngleIncrement: Math.random() * 0.07 + 0.03
+                });
+            }
+            requestAnimationFrame(drawConfetti);
+        }
+        function drawConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < confettiParticles.length; i++) {
+                let p = confettiParticles[i];
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r / 3, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 3);
+                ctx.stroke();
+            }
+            updateConfetti();
+            if (confettiParticles.length) requestAnimationFrame(drawConfetti);
+        }
+        function updateConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            for (let i = 0; i < confettiParticles.length; i++) {
+                let p = confettiParticles[i];
+                p.y += Math.cos(0.01 * p.d) + 2 + p.r / 2;
+                p.tiltAngle += p.tiltAngleIncrement;
+                p.tilt = Math.sin(p.tiltAngle) * 15;
+                if (p.y > canvas.height) {
+                    confettiParticles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        function resizeConfettiCanvas() {
+            const canvas = document.getElementById('confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeConfettiCanvas);
+        window.onload = function () {
+            resizeConfettiCanvas();
+            if (!isMultiplayer) startTimer();
+        }
+    </script>
+</body>
+</html>
