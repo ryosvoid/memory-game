@@ -72,9 +72,8 @@ DIFFICULTY_LABELS = {
 
 DEFAULT_DIFFICULTY = "4x4"
 
-@app.before_first_request
-def before_first_request():
-    init_db()
+# Initialize the DB at app startup (for older Flask versions)
+init_db()
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -193,7 +192,7 @@ def game(theme):
         current_player = None
 
     score = int(session.get('score', 100))
-    # Fixed if-elif block
+    # Fixed if-elif block for time_limit
     if difficulty == "2x2":
         time_limit = 20
     elif difficulty == "2x3":
