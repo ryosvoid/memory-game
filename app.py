@@ -25,7 +25,6 @@ def init_db():
             need_init = True
 
     if need_init:
-        # Use the correct schema file name here
         with open("schema_memory.sql", "r", encoding="utf-8") as f:
             schema = f.read()
         conn = sqlite3.connect(DATABASE)
@@ -72,8 +71,6 @@ DIFFICULTY_LABELS = {
 }
 
 DEFAULT_DIFFICULTY = "4x4"
-
-# Initialize the DB at app startup (for older Flask versions)
 init_db()
 
 @app.route('/', methods=['GET', 'POST'])
@@ -162,12 +159,9 @@ def game(theme):
     if not os.path.exists(theme_folder):
         return "Invalid theme folder."
     all_images = [f for f in os.listdir(theme_folder) if f.endswith(".jpg")]
-
-    # --- Flexible image selection logic ---
     if difficulty in ("6x6", "8x8"):
         if len(all_images) == 0:
             return "No images in the theme folder."
-        # For 6x6 and 8x8, repeat images as needed
         selected_images = [all_images[i % len(all_images)] for i in range(pairs)]
     else:
         if len(all_images) < pairs:
@@ -193,7 +187,6 @@ def game(theme):
         current_player = None
 
     score = int(session.get('score', 100))
-    # Fixed if-elif block for time_limit
     if difficulty == "2x2":
         time_limit = 20
     elif difficulty == "2x3":
@@ -283,8 +276,6 @@ def api_finish():
 
     user_id = get_user_id(session['username'])
     db = get_db()
-
-    # Get theme_id
     theme_name = data.get('theme')
     cur = db.execute("SELECT id FROM themes WHERE LOWER(nom) = LOWER(?)", (theme_name.lower(),))
     row = cur.fetchone()
@@ -292,7 +283,6 @@ def api_finish():
         return jsonify({'success': False, 'error': 'Invalid theme'}), 400
     theme_id = row['id']
 
-    # Get difficulty_id
     difficulty_code = data.get('difficulty')
     cur = db.execute("SELECT id FROM difficultes WHERE code = ?", (difficulty_code,))
     row = cur.fetchone()
