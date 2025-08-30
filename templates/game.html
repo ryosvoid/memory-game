@@ -88,7 +88,6 @@
     <audio id="fail-sound" src="{{ url_for('static', filename='sounds/fail.mp3') }}"></audio>
     <canvas id="confetti-canvas" style="position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:99;"></canvas>
 
-    <!-- MODAL OVERLAY: ONLY shows on win/lose! -->
     <div id="modal-overlay" class="modal-overlay" style="display:none;">
         <div class="modal-content" id="modal-content">
             <div id="modal-win" class="modal-win" style="display:none;">
@@ -107,7 +106,7 @@
         </div>
     </div>
     <script>
-        // Multijoueur toggle and UI update
+        // multijoueur
         const multiplayerBtn = document.getElementById('multiplayer-btn');
         let isMultiplayer = {{ 'true' if is_multiplayer else 'false' }};
         function updateMultiplayerUI() {
@@ -137,7 +136,7 @@
             window.location.search = params.toString();
         });
 
-        // Game logic for multiplayer and single player
+        // logique pour multijoueur vs solo
         let firstCard = null;
         let lockBoard = false;
         let matchedPairs = 0;
@@ -146,7 +145,7 @@
         let timerInterval = null;
         let turnPlayer = {% if is_multiplayer %}{{ current_player }}{% else %}0{% endif %};
         let playerScores = {% if is_multiplayer %}[{{ scores[0] }}, {{ scores[1] }}]{% else %}null{% endif %};
-        let movesCount = 0; // Tracks total moves for more accuracy
+        let movesCount = 0; 
 
         function flipCard(card) {
             if (lockBoard || card.classList.contains('flipped')) return;
@@ -157,11 +156,10 @@
             }
             const img1 = firstCard.querySelector('.back img').src;
             const img2 = card.querySelector('.back img').src;
-            movesCount++; // Increment on each pair attempt
+            movesCount++; //incrementation for fails
             if (img1 === img2) {
                 document.getElementById('match-sound').play();
                 matchedPairs++;
-                // If multiplayer, add score to current player
                 if (playerScores) {
                     playerScores[turnPlayer]++;
                     document.getElementById('score'+(turnPlayer+1)).textContent = playerScores[turnPlayer];
@@ -176,7 +174,6 @@
                     card.classList.remove('flipped');
                     firstCard = null;
                     lockBoard = false;
-                    // If multiplayer, change player turn on fail
                     if(playerScores) {
                         turnPlayer = turnPlayer === 0 ? 1 : 0;
                         let pt = document.getElementById('player-turn');
@@ -191,13 +188,11 @@
         function winRound() {
             stopTimer();
             launchConfetti();
-            // Enregistrement de la partie (historique)
             let duration = {{ time_limit }} - timer;
             let moves = movesCount;
             let score = {% if is_multiplayer %}0{% else %}parseInt(document.getElementById('score').textContent){% endif %};
 
             {% if not is_multiplayer %}
-            // Debug: show values sent to backend
             console.log({
                 theme: "{{ theme }}",
                 difficulty: "{{ difficulty }}",
@@ -258,7 +253,6 @@
         function stopTimer() {
             if (timerInterval) clearInterval(timerInterval);
         }
-        // Confetti stays the same as before
         let confettiParticles = [];
         const confettiColors = ["#ff69b4", "#ffb7d5", "#ffd6fa", "#fff", "#ffe5ec", "#ffb6b9"];
         function launchConfetti() {
