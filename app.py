@@ -69,7 +69,10 @@ DIFFICULTY_LABELS = {
 }
 
 DEFAULT_DIFFICULTY = "4x4"
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
 init_db()
 
 @app.route('/', methods=['GET', 'POST'])
@@ -191,6 +194,10 @@ def game(theme):
         time_limit = 200
     else:
         time_limit = 56
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
     db = get_db()
     user_id = get_user_id(session['username'])
     cur = db.execute("""
@@ -207,6 +214,10 @@ def game(theme):
         LIMIT 10
         """, (user_id,))
     game_history = cur.fetchall()
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
     return render_template("game.html",
         theme=theme,
         rows=rows, columns=cols,
@@ -255,11 +266,19 @@ def reset():
 def api_finish():
     if 'username' not in session:
         return jsonify({'success': False, 'error': 'Not logged in'}), 401
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
     data = request.get_json()
     required_fields = ['theme', 'difficulty', 'duration', 'moves', 'score']
     for field in required_fields:
         if field not in data:
             return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
     user_id = get_user_id(session['username'])
     db = get_db()
     theme_name = data.get('theme')
@@ -268,25 +287,45 @@ def api_finish():
     if not row:
         return jsonify({'success': False, 'error': 'Invalid theme'}), 400
     theme_id = row['id']
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
     difficulty_code = data.get('difficulty')
     cur = db.execute("SELECT id FROM difficultes WHERE code = ?", (difficulty_code,))
     row = cur.fetchone()
     if not row:
         return jsonify({'success': False, 'error': 'Invalid difficulty'}), 400
     difficulty_id = row['id']
+<<<<<<< HEAD
     duration = data.get('duration')
     moves = data.get('moves')
     score = data.get('score')
+=======
+
+    duration = data.get('duration')
+    moves = data.get('moves')
+    score = data.get('score')
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
     try:
         db.execute("""
             INSERT INTO parties_jouees (theme_id, difficulte_id, mode_multijoueur, duree_seconds, gagnant_id, date_partie)
             VALUES (?, ?, 0, ?, ?, datetime('now'))
         """, (theme_id, difficulty_id, duration, user_id))
         partie_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
         db.execute("""
             INSERT INTO scores_parties (partie_id, utilisateur_id, score)
             VALUES (?, ?, ?)
         """, (partie_id, user_id, score))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
         db.commit()
         return jsonify({'success': True})
     except Exception as e:

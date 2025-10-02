@@ -106,6 +106,10 @@
         </div>
     </div>
     <script>
+<<<<<<< HEAD
+=======
+        // multijoueur
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
         const multiplayerBtn = document.getElementById('multiplayer-btn');
         let isMultiplayer = {{ 'true' if is_multiplayer else 'false' }};
         function updateMultiplayerUI() {
@@ -135,6 +139,10 @@
             window.location.search = params.toString();
         });
 
+<<<<<<< HEAD
+=======
+        // logique pour multijoueur vs solo
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
         let firstCard = null;
         let lockBoard = false;
         let matchedPairs = 0;
@@ -143,7 +151,11 @@
         let timerInterval = null;
         let turnPlayer = {% if is_multiplayer %}{{ current_player }}{% else %}0{% endif %};
         let playerScores = {% if is_multiplayer %}[{{ scores[0] }}, {{ scores[1] }}]{% else %}null{% endif %};
+<<<<<<< HEAD
         let movesCount = 0;
+=======
+        let movesCount = 0; 
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
 
         function flipCard(card) {
             if (lockBoard || card.classList.contains('flipped')) return;
@@ -154,7 +166,11 @@
             }
             const img1 = firstCard.querySelector('.back img').src;
             const img2 = card.querySelector('.back img').src;
+<<<<<<< HEAD
             movesCount++;
+=======
+            movesCount++; //incrementation for fails
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
             if (img1 === img2) {
                 document.getElementById('match-sound').play();
                 matchedPairs++;
@@ -191,6 +207,17 @@
             let score = {% if is_multiplayer %}0{% else %}parseInt(document.getElementById('score').textContent){% endif %};
 
             {% if not is_multiplayer %}
+<<<<<<< HEAD
+=======
+            console.log({
+                theme: "{{ theme }}",
+                difficulty: "{{ difficulty }}",
+                duration: duration,
+                moves: moves,
+                score: score
+            });
+
+>>>>>>> 6dbb026407e86eafbfef2716696daadf8745b6c4
             fetch("{{ url_for('api_finish') }}", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
