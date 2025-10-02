@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Choose Theme</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Cute font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400|Baloo+2:700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -130,7 +129,10 @@
             text-align: center;
             transition: background 0.2s, transform 0.1s;
         }
-        .actions a:hover { background: linear-gradient(90deg, #ffc1e3 30%, #ffe0f6 100%); transform: scale(1.03);}
+        .actions a:hover { 
+            background: linear-gradient(90deg, #ffc1e3 30%, #ffe0f6 100%); 
+            transform: scale(1.03);
+        }
         @media (max-width: 800px) {
             .glass { min-width: 96vw; width: 98vw; padding: 12vw 2vw; }
             .themes-grid { gap: 13px; }
@@ -152,14 +154,12 @@
             </form>
             {% endfor %}
         </div>
-    
-            <select name="difficulty" id="diff-select" required>
-                {% for code, label in DIFFICULTY_LABELS.items() %}
-                    <option value="{{ code }}">{{ label }}</option>
-                {% endfor %}
-            </select>
-            <button type="button" onclick="startGame()">Jouer</button>
-        </form>
+        <select name="difficulty" id="diff-select" required>
+            {% for code, label in DIFFICULTY_LABELS.items() %}
+                <option value="{{ code }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="startGame()">Jouer</button>
         <div class="actions">
             <a href="{{ url_for('logout') }}">Déconnexion</a>
         </div>
